@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { useGameState } from '../context/GameStateContext.jsx';
-// ИЗМЕНЕНИЕ №1: Импортируем atlasData вместо checkpointData
 import { atlasData } from '../data';
+import GoogleMapsPlaceholder from './GoogleMapsPlaceholder';
 
 export default function CheckpointScreen({ checkpointId }) {
   const { completeCheckpoint, returnToSkillTree } = useGameState();
 
-  // ИЗМЕНЕНИЕ №2: Логика поиска стала умнее.
-  // Мы сначала "расплющиваем" все чекпойнты из всех уровней в один список, а потом ищем.
   const data = atlasData
     .flatMap(level => level.checkpoints)
     .find(c => c.id === checkpointId);
   
+  // 
+  const [isAnswered, setIsAnswered] = useState(!data.lab); 
   const [selectedOption, setSelectedOption] = useState(null);
-  const [isAnswered, setIsAnswered] = useState(false);
   
   const handleAnswer = (option) => {
     if (isAnswered) return;
@@ -26,10 +25,11 @@ export default function CheckpointScreen({ checkpointId }) {
     setIsAnswered(false);
   };
 
-  // Этот блок остается без изменений
   const isCorrect = selectedOption?.isCorrect;
+  
+  // 
+  const isButtonDisabled = data.lab && !isCorrect;
 
-  // Если по какой-то причине данные не нашлись, показываем заглушку
   if (!data) {
     return <div>Checkpoint not found!</div>;
   }
@@ -61,22 +61,26 @@ export default function CheckpointScreen({ checkpointId }) {
           <p className="font-bold text-gray-300 mb-4">{data.lab.task}</p>
           <div className="space-y-3">
             {data.lab.options.map((opt, index) => (
-              <button
-                key={index}
-                onClick={() => handleAnswer(opt)}
-                disabled={isAnswered}
-                className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
-                  isAnswered && opt.isCorrect ? 'bg-green-500/20 border border-green-500' : ''
-                } ${
-                  isAnswered && !opt.isCorrect && selectedOption?.text === opt.text ? 'bg-red-500/20 border border-red-500' : ''
-                } ${!isAnswered ? 'bg-gray-700 hover:bg-gray-600' : 'cursor-default'
-                } border border-transparent`}
-              >
-                {opt.text}
-              </button>
+              <div key={index}>
+                <button
+                  onClick={() => handleAnswer(opt)}
+                  disabled={isAnswered}
+                  className={`w-full p-3 text-left rounded-lg transition-colors duration-300 ${
+                    isAnswered && opt.isCorrect ? 'bg-green-500/20 border border-green-500' : ''
+                  } ${
+                    isAnswered && !opt.isCorrect && selectedOption?.text === opt.text ? 'bg-red-500/20 border border-red-500' : ''
+                  } ${!isAnswered ? 'bg-gray-700 hover:bg-gray-600' : 'cursor-default'
+                  } border border-transparent`}
+                >
+                  {opt.text}
+                </button>
+                {isAnswered && selectedOption?.mapPlaceholder === opt.mapPlaceholder && (
+                  <GoogleMapsPlaceholder type={opt.mapPlaceholder} />
+                )}
+              </div>
             ))}
           </div>
-          {isAnswered && (
+          {isAnswered && selectedOption && (
              <div className={`mt-4 p-3 rounded-lg ${isCorrect ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
               <p className="font-bold">{isCorrect ? 'Correct! +10 XP' : 'Not Quite'}</p>
               <p>{data.lab.feedback}</p>
@@ -86,7 +90,6 @@ export default function CheckpointScreen({ checkpointId }) {
       )}
 
       <div className="flex justify-between items-center mt-4">
-        
         <div className="flex items-center gap-6">
            <button onClick={returnToSkillTree} className="text-gray-400 hover:text-white transition duration-200">
             ← Back to Skill Tree
@@ -107,14 +110,14 @@ export default function CheckpointScreen({ checkpointId }) {
           ) : (
             <button
               onClick={() => completeCheckpoint(checkpointId)}
-              disabled={data.lab && !isCorrect}
+              // ↓↓↓ Е ↓↓↓
+              disabled={isButtonDisabled}
               className="bg-cyan-500 text-gray-900 font-bold py-2 px-6 rounded-lg transition-all disabled:bg-gray-600 disabled:cursor-not-allowed hover:enabled:bg-cyan-400"
             >
               Mark as Complete
             </button>
           )}
         </div>
-
       </div>
     </div>
   );
