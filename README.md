@@ -1,4 +1,4 @@
-Project: Atlas 🗺️
+ATLAS Project 🗺️
 
 ![alt text](https://img.shields.io/badge/status-hackathon_prototype-success.svg)
 
