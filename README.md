@@ -25,6 +25,13 @@ Through a gamified, level-based journey, users learn and apply powerful mental m
 Interactive labs transform abstract concepts into intuitive, practical skills. The ultimate goal is to build a robust internal "map of reality,"
  enabling users to make better decisions with clarity and confidence.
 
+## 📸 Project Demo
+
+A complete walkthrough of the core user journey, from onboarding to completing a checkpoint.
+
+![Project Atlas Demo GIF](assets/atlas-demo.gif)
+
+
 
 🚀 Live Demo
 Experience the full prototype deployed on Render:

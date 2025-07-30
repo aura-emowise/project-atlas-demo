@@ -10,9 +10,8 @@ export default function CheckpointScreen({ checkpointId }) {
     .flatMap(level => level.checkpoints)
     .find(c => c.id === checkpointId);
   
-  // 
-  const [isAnswered, setIsAnswered] = useState(!data.lab); 
   const [selectedOption, setSelectedOption] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
   
   const handleAnswer = (option) => {
     if (isAnswered) return;
@@ -26,9 +25,6 @@ export default function CheckpointScreen({ checkpointId }) {
   };
 
   const isCorrect = selectedOption?.isCorrect;
-  
-  // 
-  const isButtonDisabled = data.lab && !isCorrect;
 
   if (!data) {
     return <div>Checkpoint not found!</div>;
@@ -80,7 +76,7 @@ export default function CheckpointScreen({ checkpointId }) {
               </div>
             ))}
           </div>
-          {isAnswered && selectedOption && (
+          {isAnswered && (
              <div className={`mt-4 p-3 rounded-lg ${isCorrect ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
               <p className="font-bold">{isCorrect ? 'Correct! +10 XP' : 'Not Quite'}</p>
               <p>{data.lab.feedback}</p>
@@ -110,8 +106,7 @@ export default function CheckpointScreen({ checkpointId }) {
           ) : (
             <button
               onClick={() => completeCheckpoint(checkpointId)}
-              // ↓↓↓ Е ↓↓↓
-              disabled={isButtonDisabled}
+              disabled={!isAnswered || (data.lab && !isCorrect)}
               className="bg-cyan-500 text-gray-900 font-bold py-2 px-6 rounded-lg transition-all disabled:bg-gray-600 disabled:cursor-not-allowed hover:enabled:bg-cyan-400"
             >
               Mark as Complete
